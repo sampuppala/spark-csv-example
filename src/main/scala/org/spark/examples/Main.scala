@@ -1,7 +1,6 @@
 package org.spark.examples
 
 import org.apache.spark.sql.SparkSession
-import scala.io.Source
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -15,9 +14,17 @@ object Main {
     println("Deploy Mode :" + spark.sparkContext.deployMode);
     println("Master :" + spark.sparkContext.master);
 
+    //Seq("Id", StringType).
+
     val df = spark.read.format("com.databricks.spark.csv")
       .option("delimiter", ",")
-      .load("Salaries.csv")
-    df.show()
+      .option("inferSchema", "true")
+      .option("header", "true")
+      .load("Salaries.csv").toDF()
+    df.select("JobTitle", "EmployeeName", "BasePay","OvertimePay","OtherPay","Benefits",
+      "TotalPay","TotalPayBenefits","Year", "Agency").show(100)
+    df.groupBy("JobTitle").count().show()
+    df.groupBy("Year").count().show()
+    //df.show()
   }
 }
